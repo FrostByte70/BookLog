@@ -13,6 +13,87 @@ function getLocation() {
     navigator.geolocation.getCurrentPosition(onGeolocationSuccess, onGeolocationError);
 }
 
+
+//=======================Database     =======================//
+
+    var DBName = "BookLog";
+    var DBVersion = "1.0";
+    var DBDisplayName = "Book Log";
+    var DBSize = 200000
+
+
+    function getData() {
+        onDeviceReady();
+        
+        
+    }
+    // Populate the database 
+    //
+    function populateDB(tx) {
+        //  create the USERS table and populate with Default User
+      //  tx.executeSql('DROP TABLE IF EXISTS USERS');
+        tx.executeSql('CREATE TABLE IF NOT EXISTS USERS (id INTEGER PRIMARY KEY AUTOINCREMENT , username UNIQUE )');
+        tx.executeSql('INSERT OR IGNORE INTO USERS ( username) VALUES ( "Default User")');
+ 
+
+        // create the Book Catagories table and populate with default values.
+        
+        
+        // create the Book Formats table and populate with default values.
+        
+        
+        // create the Book Log table
+
+
+    }
+
+    // Query the database for the Users that are defined in the system
+    //
+    function queryUsers(tx) {
+        tx.executeSql('SELECT * FROM USERS', [], queryUsersSuccess, errorCB);
+    }
+
+    // Query the success callback
+    //
+    function queryUsersSuccess(tx, results) {
+        var len = results.rows.length;
+        var msg; 
+        msg = "USERS table: " + len + " rows found.<br>";
+        for (var i=0; i<len; i++){
+            msg = msg + "Row = " + i + " ID = " + results.rows.item(i).id + " Data =  " + results.rows.item(i).username + "<br>";
+        }
+        
+        var sqlResults = document.getElementById('sqlResults');
+        sqlResults.innerHTML = msg;
+        sqlResults.style.display = 'block';
+    }
+
+    // Transaction error callback
+    //
+    function errorCB(err) {
+        console.log("Error processing SQL Code: "+err.code);
+        console.log("Error processing SQL Message: "+err.message);
+    }
+
+    // Transaction success callback
+    //
+    function successCB() {
+    //    var db = window.openDatabase("BookLog", "1.0", "Book Log", 200000);
+        var db = window.openDatabase(DBName, DBVersion, DBDisplayName, DBSize);
+        db.transaction(queryUsers, errorCB);
+    }
+
+    // Cordova is ready
+    //
+    function onDeviceReady() {
+        var db = window.openDatabase(DBName, DBVersion, DBDisplayName, DBSize);
+        db.transaction(populateDB, errorCB, successCB);
+    }
+
+
+
+
+
 //=======================Say Hello (Page 1) Operations=======================//
 function sayHello() {
     var sayHelloInputElem = document.getElementById('helloWorldInput');
